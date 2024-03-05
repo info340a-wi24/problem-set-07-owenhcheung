@@ -1,3 +1,15 @@
-import React from 'react'; //import React library
+import React from 'react';
 
-/* Your code goes here */
+function TableHeader({ columnNames }) {
+  return (
+    <thead>
+      <tr>
+        {columnNames.map(columnName => (
+          <th key={columnName}>{columnName}</th>
+        ))}
+      </tr>
+    </thead>
+  );
+}
+
+export default TableHeader;
