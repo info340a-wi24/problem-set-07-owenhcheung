@@ -1,13 +1,20 @@
-import React, { useState } from 'react'; //import React Component
+import React, { useState } from 'react';
 import GameDataTable from './GameDataTable';
 import TeamSelectForm from './TeamSelectForm';
 
 function App(props) {
+  const [filterCriteria, setFilterCriteria] = useState({ teamName: '', includeRunnerUps: false });
 
-  //Your work goes here
-
-  //get sorted list of unique teamNames. reduce array of objects into array of strings, 
-  //convert to Set to get uniques, spread back into array, and sort 
+  const applyFilter = (teamName, includeRunnerUps) => {
+    setFilterCriteria({ teamName, includeRunnerUps });
+  };
+  let displayedData = props.gameData;
+  if (filterCriteria.teamName !== '') {
+    displayedData = displayedData.filter((gameObj) => {
+      return gameObj.winner === filterCriteria.teamName || 
+             (filterCriteria.includeRunnerUps && gameObj.runner_up === filterCriteria.teamName);
+    });
+  }
   const uniqueTeamNames = [...new Set(props.gameData.reduce((all, current) => {
     return all.concat([current.winner, current.runner_up]);
   }, []))].sort();
@@ -19,8 +26,8 @@ function App(props) {
       </header>
     
       <main>
-        <TeamSelectForm teamOptions={uniqueTeamNames} />
-        <GameDataTable data={props.gameData} />
+        <TeamSelectForm teamOptions={uniqueTeamNames} applyFilterCallback={applyFilter} />
+        <GameDataTable data={displayedData} />
       </main>
 
       <footer>

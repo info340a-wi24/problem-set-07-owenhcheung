@@ -1,14 +1,35 @@
-import React, { useState } from 'react'; //import React Component
-
-import _ from 'lodash'; //import external library!
+import React, { useState } from 'react';
+import _ from 'lodash';
 
 export default function GameDataTable(props) {
+  const [sortByCriteria, setSortByCriteria] = useState(null);
+  const [isAscending, setIsAscending] = useState(null);
 
-  //Your state and event work goes here
+  const handleClick = (event) => {
+    const clickedCriteria = event.currentTarget.name;
 
+    if (sortByCriteria !== clickedCriteria) {
+      setSortByCriteria(clickedCriteria);
+      setIsAscending(true);
+    } else {
+      setIsAscending((prevIsAscending) => {
+        if (prevIsAscending === null || prevIsAscending === false) {
+          return true;
+        } else {
+          return false;
+        }
+      });
+    }
+  };
 
-  //Map the `props.data` value into an array of `<GameDataRow>` elements here
+  let sortedData = _.sortBy(props.data, sortByCriteria);
+  if (sortByCriteria && !isAscending) {
+    sortedData = _.reverse(sortedData);
+  }
 
+  const gameRows = sortedData.map((gameObj) => (
+    <GameDataRow key={gameObj.year} gameObj={gameObj} />
+  ));
 
   return (
     <div className="table-responsive">
@@ -17,39 +38,58 @@ export default function GameDataTable(props) {
           <tr>
             <th>
               Year
-              <SortButton name="year" />
+              <SortButton
+                name="year"
+                active={sortByCriteria === 'year'}
+                ascending={sortByCriteria === 'year' && isAscending}
+                onClick={handleClick}
+              />
             </th>
             <th className="text-end">
               Winner
-              <SortButton name="winner" />
+              <SortButton
+                name="winner"
+                active={sortByCriteria === 'winner'}
+                ascending={sortByCriteria === 'winner' && isAscending}
+                onClick={handleClick}
+              />
             </th>
             <th className="text-center">
               Score
-              <SortButton name="score" />
+              <SortButton
+                name="score"
+                active={sortByCriteria === 'score'}
+                ascending={sortByCriteria === 'score' && isAscending}
+                onClick={handleClick}
+              />
             </th>
             <th>
               Runner-Up
-              <SortButton name="runner_up" />
+              <SortButton
+                name="runner_up"
+                active={sortByCriteria === 'runner_up'}
+                ascending={sortByCriteria === 'runner_up' && isAscending}
+                onClick={handleClick}
+              />
             </th>
           </tr>
         </thead>
         <tbody>
-          {/* render the array of <GameDataRow> elements here */}
+          {gameRows}
         </tbody>
       </table>
     </div>
   );
 }
 
-//Component for managing display logic of sort button
-//Props: 
-//  `active` [boolean] if icon should be highlighted,
-//  `ascending` [boolean] if icon should be in ascending order (flipped)
-//  `onClick` [function] click handler (passthrough)
 function SortButton(props) {
-  let iconClasses = ""
-  if (props.active) { iconClasses += ` active` }
-  if (props.ascending) { iconClasses += ` flip` };
+  let iconClasses = "";
+  if (props.active) {
+    iconClasses += " active";
+  }
+  if (props.ascending !== null) {
+    iconClasses += props.ascending ? "" : " flip";
+  }
 
   return (
     <button className="btn btn-sm btn-sort" name={props.name} onClick={props.onClick}>
@@ -58,7 +98,7 @@ function SortButton(props) {
   );
 }
 
-function GameDataRow({ gameObj }) { //gameObj = props.gameObj
+function GameDataRow({ gameObj }) {
   return (
     <tr>
       <td>{gameObj.year}</td>
